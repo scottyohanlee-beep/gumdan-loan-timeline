@@ -95,10 +95,42 @@ a{color:inherit}
 footer{font-size:13px;color:var(--mute)}
 @media(max-width:600px){.step{grid-template-columns:minmax(0,1fr);gap:4px}.calc{grid-template-columns:minmax(0,1fr)}.axis,.grow{grid-template-columns:5.8em minmax(0,1fr);gap:6px}.grow .lab{font-size:12px}table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:6.5em;white-space:normal}.stack td::before{content:attr(data-l);float:inline-start;width:6em;margin-inline-start:-6.5em;color:var(--mute);font-weight:400;font-size:13px}}
 @media(prefers-reduced-motion:no-preference){.bar{transition:width .4s}}
+.gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:var(--ice)}
+.gate form{width:100%;max-width:380px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:24px 20px}
+.gate h2{font-size:22px;margin-bottom:6px}
+.gate label{display:block;font-size:14px;margin:16px 0 6px}
+.gate input{width:100%;font:16px "IBM Plex Sans KR",sans-serif;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.gate input:focus{outline:2px solid var(--pink);outline-offset:2px}
+.gate .btn{width:100%;margin-top:14px}
+.gate .src{margin-top:10px}
+html.in .gate{display:none}
+html:not(.in) body{overflow:hidden}
 </style>
+<script>try{if(sessionStorage.getItem('gd-visitor'))document.documentElement.classList.add('in')}catch(e){}</script>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
 <body>
+<div class="gate" id="gate"><form id="gateform">
+<h2>방문자 확인</h2>
+<p class="src">누가 보는지 기록하려고 이름을 받아요. 입력한 이름은 페이지 주인만 볼 수 있어요.</p>
+<label for="vname">이름</label>
+<input id="vname" name="vname" autocomplete="name" required maxlength="40" placeholder="예: 홍길동">
+<button class="btn" type="submit">들어가기</button>
+<p class="src" id="gatemsg" aria-live="polite"></p>
+</form></div>
+<script>
+{
+const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLScIqruwprHqscDXBjB4c9xhshwUtE-XxEK0KSjcs8tEKpZCzQ/formResponse',ENTRY='entry.224284201';
+document.getElementById('gateform').addEventListener('submit',async e=>{
+e.preventDefault();
+const name=document.getElementById('vname').value.trim();if(!name)return;
+const btn=e.target.querySelector('button');btn.disabled=true;document.getElementById('gatemsg').textContent='기록하는 중…';
+try{await fetch(FORM_URL,{method:'POST',mode:'no-cors',body:new URLSearchParams({[ENTRY]:name})})}catch(err){}
+try{sessionStorage.setItem('gd-visitor',name)}catch(err){}
+document.documentElement.classList.add('in');window.scrollTo(0,0);
+});
+}
+</script>
 
 <header class="band top"><div class="wrap">
 <h1>검단 잔금대출 타임라인</h1>
