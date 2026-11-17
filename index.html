@@ -91,6 +91,21 @@ td:first-child{font-weight:600;white-space:nowrap}
 .btn{font:600 15px "IBM Plex Sans KR",sans-serif;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
 .btn.ghost{background:transparent;color:var(--ink)}
 ol.q{margin:10px 0;padding-left:22px}
+.fb{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;max-width:720px}
+.fb fieldset{border:0;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.fb legend{font-size:14px;margin-bottom:8px;padding:0}
+.fb .pick{position:relative}
+.fb .pick input{position:absolute;opacity:0}
+.fb .pick span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;cursor:pointer;background:var(--bg)}
+.fb .pick input:checked+span{border-color:var(--pink);color:var(--pink);font-weight:600}
+.fb .pick input:focus-visible+span{outline:2px solid var(--pink);outline-offset:2px}
+.fb label.t{display:block;font-size:14px;margin-bottom:6px}
+.fb textarea{width:100%;min-height:130px;resize:vertical;font:16px/1.6 "IBM Plex Sans KR",sans-serif;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.fb textarea:focus{outline:2px solid var(--pink);outline-offset:2px}
+.fb .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px}
+.sent{list-style:none;margin:16px 0 0;padding:0;max-width:720px}
+.sent li{border-top:1px solid var(--line);padding:10px 0;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.sent li small{display:block;color:var(--mute);font-size:12px;white-space:normal}
 a{color:inherit}
 footer{font-size:13px;color:var(--mute)}
 @media(max-width:600px){.step{grid-template-columns:minmax(0,1fr);gap:4px}.calc{grid-template-columns:minmax(0,1fr)}.axis,.grow{grid-template-columns:5.8em minmax(0,1fr);gap:6px}.grow .lab{font-size:12px}table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:6.5em;white-space:normal}.stack td::before{content:attr(data-l);float:inline-start;width:6em;margin-inline-start:-6.5em;color:var(--mute);font-weight:400;font-size:13px}}
@@ -156,7 +171,7 @@ document.documentElement.classList.add('in');window.scrollTo(0,0);
 </div></header>
 
 <nav class="nav" aria-label="섹션">
-<a href="#steps">단계별 일정</a><a href="#form">신청서 입력</a><a href="#calc">한도 계산</a><a href="#change">변경 가능 항목</a><a href="#dday">2/22 당일</a><a href="#risk">주의·계획 B</a><a href="#ask">물어볼 것</a><a href="#blogs">블로그 요약</a>
+<a href="#steps">단계별 일정</a><a href="#form">신청서 입력</a><a href="#calc">한도 계산</a><a href="#change">변경 가능 항목</a><a href="#dday">2/22 당일</a><a href="#risk">주의·계획 B</a><a href="#ask">물어볼 것</a><a href="#blogs">블로그 요약</a><a href="#feedback">사용자 피드백</a>
 </nav>
 
 <main>
@@ -250,7 +265,47 @@ document.documentElement.classList.add('in');window.scrollTo(0,0);
 <tr><td>실행 후</td><td>취득세 60일 이내(생애최초 감면 신청), 6개월 이내 전입과 증빙 제출</td></tr>
 </tbody></table></div>
 </div></section>
+
+<section class="band top" id="feedback"><div class="wrap">
+<h2>사용자 피드백: 고칠 점이나 궁금한 걸 남겨 주세요</h2>
+<p>남긴 글은 페이지 주인만 볼 수 있어요. 답이 필요한 질문은 따로 연락드릴게요.</p>
+<form class="fb" id="fbform">
+<fieldset><legend>구분</legend>
+<label class="pick"><input type="radio" name="fbkind" value="개선점" checked><span>개선점</span></label>
+<label class="pick"><input type="radio" name="fbkind" value="질문(Q&amp;A)"><span>질문(Q&amp;A)</span></label>
+<label class="pick"><input type="radio" name="fbkind" value="기타"><span>기타</span></label>
+</fieldset>
+<label class="t" for="fbtext">내용</label>
+<textarea id="fbtext" required maxlength="2000" placeholder="예: 한도 계산에 중도금 이자도 넣어 주세요"></textarea>
+<div class="row"><button class="btn" type="submit">보내기</button><span class="src" id="fbmsg" aria-live="polite"></span></div>
+</form>
+<ul class="sent" id="fbsent" aria-label="이 브라우저에서 보낸 피드백"></ul>
+</div></section>
 </main>
+<script>
+{
+const FB_URL='https://docs.google.com/forms/d/e/1FAIpQLSc87bC5vSbBKna_TKRk8qF_B7z6CtkxJG3tCKRmBRwQnTilyg/formResponse';
+const F_ID='entry.523297737',F_KIND='entry.744443993',F_TEXT='entry.301703679';
+const KEY='gd-feedback-sent';
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+const show=()=>{const l=load();document.getElementById('fbsent').innerHTML=l.length?l.slice().reverse().map(x=>`<li><small>${esc(x.k)} · ${esc(x.t)} 보냄</small>${esc(x.c)}</li>`).join(''):''};
+show();
+document.getElementById('fbform').addEventListener('submit',async e=>{
+e.preventDefault();
+const ta=document.getElementById('fbtext'),msg=document.getElementById('fbmsg'),btn=e.target.querySelector('button');
+const text=ta.value.trim();if(!text){ta.focus();return}
+const kind=e.target.querySelector('input[name=fbkind]:checked').value;
+let id='';try{id=sessionStorage.getItem('gd-login')||''}catch(err){}
+btn.disabled=true;msg.textContent='보내는 중…';
+try{await fetch(FB_URL,{method:'POST',mode:'no-cors',body:new URLSearchParams({[F_ID]:id||'(알 수 없음)',[F_KIND]:kind,[F_TEXT]:text})});
+const l=load();l.push({k:kind,c:text,t:new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})});try{localStorage.setItem(KEY,JSON.stringify(l.slice(-20)))}catch(err){}
+ta.value='';show();msg.textContent='보냈어요. 고마워요!'}
+catch(err){msg.textContent='전송이 안 됐어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'}
+btn.disabled=false;
+});
+}
+</script>
 
 <footer class="band top"><div class="wrap">
 <p>근거: 2026-11-17 주택금융공사 상담 통화(녹음을 자동으로 받아 적음), 아래 블로그 다섯 편, 공개된 보금자리론 안내. 금리, 한도, 요건은 바뀔 수 있으니 신청 직전에 공사 공지를 확인하세요.</p>
