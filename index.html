@@ -106,27 +106,33 @@ footer{font-size:13px;color:var(--mute)}
 html.in .gate{display:none}
 html:not(.in) body{overflow:hidden}
 </style>
-<script>try{if(sessionStorage.getItem('gd-visitor'))document.documentElement.classList.add('in')}catch(e){}</script>
+<script>try{if(sessionStorage.getItem('gd-login'))document.documentElement.classList.add('in')}catch(e){}</script>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
 <body>
 <div class="gate" id="gate"><form id="gateform">
-<h2>방문자 확인</h2>
-<p class="src">누가 보는지 기록하려고 이름을 받아요. 입력한 이름은 페이지 주인만 볼 수 있어요.</p>
-<label for="vname">이름</label>
-<input id="vname" name="vname" autocomplete="name" required maxlength="40" placeholder="예: 홍길동">
-<button class="btn" type="submit">들어가기</button>
+<h2>로그인</h2>
+<p class="src">허락받은 사람만 볼 수 있어요. 로그인한 ID는 방문 기록으로 남아요.</p>
+<label for="vid">ID</label>
+<input id="vid" name="vid" autocomplete="username" autocapitalize="off" spellcheck="false" required maxlength="40">
+<label for="vpw">비밀번호</label>
+<input id="vpw" name="vpw" type="password" autocomplete="current-password" required maxlength="80">
+<button class="btn" type="submit">로그인</button>
 <p class="src" id="gatemsg" aria-live="polite"></p>
 </form></div>
 <script>
 {
 const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLScIqruwprHqscDXBjB4c9xhshwUtE-XxEK0KSjcs8tEKpZCzQ/formResponse',ENTRY='entry.224284201';
+const USERS=['bf471c7e0e6311550995a08dd601588a0f5f78cf19812e02d4fc4dd85ad58c35'];
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 document.getElementById('gateform').addEventListener('submit',async e=>{
 e.preventDefault();
-const name=document.getElementById('vname').value.trim();if(!name)return;
-const btn=e.target.querySelector('button');btn.disabled=true;document.getElementById('gatemsg').textContent='기록하는 중…';
+const id=document.getElementById('vid').value.trim(),pw=document.getElementById('vpw').value,msg=document.getElementById('gatemsg');if(!id||!pw)return;
+const btn=e.target.querySelector('button');btn.disabled=true;
+if(!USERS.includes(await sha(id+':'+pw))){msg.textContent='ID 또는 비밀번호가 맞지 않아요.';btn.disabled=false;document.getElementById('vpw').select();return}
+const name=id;msg.textContent='로그인하는 중…';
 try{await fetch(FORM_URL,{method:'POST',mode:'no-cors',body:new URLSearchParams({[ENTRY]:name})})}catch(err){}
-try{sessionStorage.setItem('gd-visitor',name)}catch(err){}
+try{sessionStorage.setItem('gd-login',name)}catch(err){}
 document.documentElement.classList.add('in');window.scrollTo(0,0);
 });
 }
