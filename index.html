@@ -123,7 +123,7 @@ html:not(.in) body{overflow:hidden}
 <script>
 {
 const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLScIqruwprHqscDXBjB4c9xhshwUtE-XxEK0KSjcs8tEKpZCzQ/formResponse',ENTRY='entry.224284201';
-const USERS=['bf471c7e0e6311550995a08dd601588a0f5f78cf19812e02d4fc4dd85ad58c35'];
+const USERS=['3e3ab7de6d79f8c426d7cfc26228685242447d4215d3925cff144d590918fa04'];
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 document.getElementById('gateform').addEventListener('submit',async e=>{
 e.preventDefault();
